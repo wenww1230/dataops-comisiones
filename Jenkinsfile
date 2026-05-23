@@ -2,39 +2,29 @@ pipeline {
     agent any
 
     stages {
-        stage('Clonar repositorio') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Construir imagen Docker') {
+        stage('Build Docker Image') {
             steps {
                 sh 'docker build -t dataops-comisiones .'
             }
         }
 
-        stage('Ejecutar contenedor') {
+        stage('Run Container') {
             steps {
                 sh 'mkdir -p output'
-                sh 'docker run --rm -v $WORKSPACE/output:/app/output dataops-comisiones'
+                sh 'docker run --rm -v "$WORKSPACE/output:/app/output" dataops-comisiones'
             }
         }
 
-        stage('Verificar artefacto') {
+        stage('Check Output') {
             steps {
                 sh 'ls -lh output'
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline ejecutado correctamente. El archivo Excel fue generado.'
-        }
-
-        failure {
-            echo 'El pipeline falló. Revisar logs.'
         }
     }
 }
